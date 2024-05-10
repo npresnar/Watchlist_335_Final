@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= movie.title %> - Movie Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: #333;
+            padding: 10px 0;
+        }
+        
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        
+        .poster img {
+            max-width: 300px;
+            height: auto;
+        }
+        
+        .details {
+            margin-left: 20px;
+        }        
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/watchlist">Watchlist</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <div class="poster">
+            <!-- Movie Poster Image -->
+            <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %> Poster">
+        </div>
+
+        <div class="details">
+            <h1><%= movie.title %> - Movie Details</h1>
+            <ul>
+                <li><strong>Release Date:</strong> <%= movie.release_date %></li>
+                <li><strong>Overview:</strong> <%= movie.overview %></li>
+                <li><strong>Vote Average:</strong> <%= movie.vote_average %></li>
+                <li><strong>Genres:</strong> 
+                    <% movie.genres.forEach(genre => { %>
+                        <%= genre.name %>,
+                    <% }); %>
+                </li>
+                <li><strong>Runtime:</strong> <%= movie.runtime %> minutes</li>
+                <li><strong>Homepage:</strong> <a href="<%= movie.homepage %>" target="_blank"><%= movie.homepage %></a></li>
+                <li><strong>Tagline:</strong> <%= movie.tagline %></li>
+                <!-- Add more details as needed -->
+            </ul>
+
+            <!-- Buttons for watchlist actions -->
+            <form action="/addToWatchlist" method="POST">
+                <input type="hidden" name="movieId" value="<%= movie.id %>">
+                <button type="submit">Add to Watchlist</button>
+            </form>
+
+            <form action="/markAsWatched" method="POST">
+                <input type="hidden" name="movieId" value="<%= movie.id %>">
+                <button type="submit">Mark as Watched</button>
+            </form>
+
+            <form action="/removeFromWatchlist" method="POST">
+                <input type="hidden" name="movieId" value="<%= movie.id %>">
+                <button type="submit">Remove from Watchlist</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

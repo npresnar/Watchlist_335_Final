@@ -1,78 +1,172 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const path = require("path");
+const ejs = require("ejs");
+const fs = require("fs");
+const dotenv = require("dotenv");
+
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+dotenv.config();
+
+const username = process.env.MONGO_DB_USERNAME;
+const password = process.env.MONGO_DB_PASSWORD;
+const dbName = process.env.MONGO_DB_NAME;
+const collectionName = process.env.MONGO_COLLECTION;
+
+
 // MongoDB connection URI
-const uri = "mongodb://localhost:27017";
-const dbName = "movieWatchlist";
+const uri = `mongodb+srv://${username}:${password}@cluster0.9ar5xe5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const databaseAndCollection = {
+  db: process.env.MONGO_DB_NAME,
+  collection: process.env.MONGO_COLLECTION,
+};
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "templates"));
+
+// Serve static files from the 'public' folder
+app.use(express.static(path.join(__dirname, 'templates')));
+
+// Set view engine and views directory
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'templates'));
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello World")
-  // res.render("index");
+  fetch(
+    "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
+    {
+      method: "GET",
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+        Accept: "application/json",
+      },
+    }
+  )
+.then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Pass the movie data to the index.ejs template
+    res.render("index", { movies: data.results });
+  })
+  .catch(error => {
+    console.error('There was a problem with your fetch operation:', error);
+    // In case of error, render the index page with an empty movie list
+    res.render("index", { movies: [] });
+  });
 });
 
-// // Route to handle adding movies to watchlist
-// app.post("/addMovie", async (req, res) => {
-//   const client = new MongoClient(uri, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   });
+// Express route to render the movie page
+// Express route to render the movie page
+app.get("/movie/:id", async (req, res) => {
+  try {
+    const movieId = req.params.id;
+    const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, {
+      method: "GET",
+      headers: {
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+        Accept: "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const movie = await response.json();
+    res.render("movie", { movie });
+  } catch (error) {
+    console.error("Error fetching movie data:", error);
+    res.status(500).send("Error fetching movie data");
+  }
+});
 
-//   try {
-//     await client.connect();
-//     const db = client.db(dbName);
-//     const collection = db.collection("movies");
 
-//     const newMovie = {
-//       title: req.body.title,
-//       genre: req.body.genre,
-//       releaseYear: req.body.releaseYear,
-//     };
+// POST endpoint for search
+app.post('/search', async (req, res) => {
+  try {
+      // Extract the search query from the request body
+      const { query } = req.body;
 
-//     await collection.insertOne(newMovie);
-//     console.log("Movie added to watchlist:", newMovie);
-//     res.redirect("/");
-//   } catch (err) {
-//     console.log(err);
-//     res.redirect("/");
-//   } finally {
-//     await client.close();
-//   }
-// });
+      // Make a fetch request to the TMDB API
+      const response = await fetch(`https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`, {
+          method: 'GET',
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+            Accept: "application/json",
+          },
+          });
 
-// // Route to display watchlist
-// app.get("/watchlist", async (req, res) => {
-//   const client = new MongoClient(uri, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   });
+      const data = await response.json();
 
-//   try {
-//     await client.connect();
-//     const db = client.db(dbName);
-//     const collection = db.collection("movies");
+      res.render('search-results', { movies: data.results });
+  } catch (error) {
+      console.error('Error searching for movies:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
 
-//     const movies = await collection.find({}).toArray();
-//     res.render("watchlist", { movies: movies });
-//   } catch (err) {
-//     console.log(err);
-//   } finally {
-//     await client.close();
-//   }
-// });
+// GET endpoint for displaying all movies in the watchlist
+app.get('/watchlist', async (req, res) => {
+  try {
+      const client = new MongoClient(uri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+      });
+      await client.connect();
+
+      const movies = await client.db(databaseAndCollection.db)
+      .collection(databaseAndCollection.collection)
+      .find({}).toArray();
+
+      await client.close();
+
+      // Render the EJS template with the list of movies
+      res.render('watchlist', { movies });
+  } catch (error) {
+      console.error('Error fetching movies from watchlist:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+// POST endpoint for adding a movie to the watchlist
+app.post('/addToWatchlist', async (req, res) => {
+  const { movieId } = req.body;
+  async function main () {
+    const client = new MongoClient(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverApi: ServerApiVersion.v1,
+    });
+    try {
+      await client.connect();
+      const result = await client
+        .db(databaseAndCollection.db)
+        .collection(databaseAndCollection.collection)
+        .insertOne({ movieId: movieId });
+      res.redirect('/watchlist');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await client.close();
+    }    
+  }
+  main().catch(console.error);
+});
+
+
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
