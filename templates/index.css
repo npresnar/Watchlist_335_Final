@@ -1,0 +1,79 @@
+body {
+    background: #19181a;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #8E8D8A;
+    padding: .5rem;
+    width: 100rem;
+}
+
+.title {
+    color: #E85A4f
+}
+
+* {
+    box-sizing: border-box; /* Ensures padding and borders are included in total width/height */
+    overflow-x: hidden; /* Prevents horizontal scrolling caused by wide elements */
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+nav ul form {
+    display: inline;
+    text-align: right;
+    margin-right: 20px;
+    color: #fff;
+    margin-left: 45rem;
+}
+
+a {
+    color: inherit;  /* Inherits the color from the parent element */
+    text-decoration: none;  /* Removes underline */
+}
+a:hover {
+    color: inherit;  /* Keeps the same color even when hovered */
+    text-decoration: none;  /* Ensures no underline appears on hover */
+}
+
+.movie-table {
+    padding-left: 2rem;
+    display: block;
+    background: #EAE7DC;
+}
+
+.movie-table tr {
+    margin-bottom: .5rem;
+}
+
+.movie-title, .release-date {
+    border: none;
+}
+
+.release-date {
+    color: #8E8D8A;
+}
+
+table {
+    border-collapse: collapse; /* Removes the space between borders */
+}
+
+tr {
+    border-bottom: 1px solid #a4a4a4; /* Light gray border under each row */
+}
+

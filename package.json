@@ -5,7 +5,18 @@
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "fs": "^0.0.1-security",
-    "mongodb": "^6.6.0",
+    "mongodb": "^6.6.1",
+    "node-fetch": "^3.3.2",
     "path": "^0.12.7"
-  }
+  },
+  "name": "watchlist_335_final",
+  "description": "A watchlist organizer",
+  "version": "1.0.0",
+  "main": "watchlist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": []
 }

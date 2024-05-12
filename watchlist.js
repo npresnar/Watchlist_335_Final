@@ -20,7 +20,8 @@ const collectionName = process.env.MONGO_COLLECTION;
 
 
 // MongoDB connection URI
-const uri = `mongodb+srv://${username}:${password}@cluster0.9ar5xe5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = `mongodb+srv://${username}:${password}@cluster0.9ar5xe5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${username}:${password}@cluster0.q3nnrm3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const databaseAndCollection = {
   db: process.env.MONGO_DB_NAME,
   collection: process.env.MONGO_COLLECTION,
@@ -37,24 +38,67 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'templates'));
 
 // Routes
+// app.get("/", (req, res) => {
+//   fetch(
+//     "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
+//     {
+//       method: "GET",
+//       headers: {
+//         Authorization:
+//           "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+//         Accept: "application/json",
+//       },
+//     }
+//   )
+// .then(response => {
+//     if (!response.ok) {
+//       throw new Error('Network response was not ok');
+//     }
+//     return response.json();
+//   })
+//   .then(data => {
+//     // Pass the movie data to the index.ejs template
+//     res.render("index", { movies: data.results });
+//   })
+//   .catch(error => {
+//     console.error('There was a problem with your fetch operation:', error);
+//     // In case of error, render the index page with an empty movie list
+//     res.render("index", { movies: [] });
+//   });
+// });
+
+async function fetchWithRetry(url, options = {}, retries = 25, backoff = 300) {
+  const fetch = (await import('node-fetch')).default;
+
+  try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return await response.json();
+  } catch (error) {
+      console.log(`Fetch attempt failed with error: ${error.message}, retrying... Attempts left: ${retries - 1}`);
+      if (retries > 1) {
+          await new Promise(resolve => setTimeout(resolve, backoff));
+          return fetchWithRetry(url, options, retries - 1, backoff * 2);
+      } else {
+          throw new Error('Max retries reached. ' + error.message);
+      }
+  }
+}
+
 app.get("/", (req, res) => {
-  fetch(
-    "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
-    {
-      method: "GET",
-      headers: {
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
-        Accept: "application/json",
-      },
+  const url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1";
+  const options = {
+    method: "GET",
+    headers: {
+      Authorization:
+        "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+      Accept: "application/json",
     }
-  )
-.then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
+  };
+  
+  fetchWithRetry(url, options, retries=3, backoff=300)
   .then(data => {
     // Pass the movie data to the index.ejs template
     res.render("index", { movies: data.results });
@@ -120,10 +164,15 @@ app.post('/search', async (req, res) => {
 app.get('/watchlist', async (req, res) => {
   try {
       const client = new MongoClient(uri, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+        serverApi: {
+          version: ServerApiVersion.v1,
+          strict: true,
+          deprecationErrors: true,
+        }
       });
-      await client.connect();
+      await client.connect()
+      .then(() => console.log('Connected successfully to MongoDB'))
+      .catch(err => console.error('Failed to connect to MongoDB', err));
 
       const movies = await client.db(databaseAndCollection.db)
       .collection(databaseAndCollection.collection)
@@ -164,9 +213,25 @@ app.post('/addToWatchlist', async (req, res) => {
   main().catch(console.error);
 });
 
-
-
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+function processInput() {
+  let dataInput = process.stdin.read();
+  if (dataInput !== null) {
+    dataInput = dataInput.toString().trim();  // Convert buffer to string and trim whitespace
+    console.log(`Received command: ${dataInput}`);  // Echo the command back to the user
+
+    if (dataInput === "stop") {
+      console.log("Shutting down the server");
+      process.exit(0);  // It's usually better to exit with code 0 for normal shutdown
+    } else {
+      console.log(`Invalid command: ${dataInput}`);
+      console.log("Type 'stop' to shutdown the server.");
+    }
+  }
+}
+
+process.stdin.on('readable', processInput);

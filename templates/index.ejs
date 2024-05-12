@@ -1,17 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Watchlist Organizer</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Movie Watchlist Organizer</h1>
-    
-    <!-- Link to Watchlist Page -->
-    <a href="/watchlist">Go to Watchlist</a>
+    <h1 class="title">Movie Watchlist Organizer</h1>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/watchlist">Watchlist</a></li>
+                <li>
+                    <form action="/search" method="POST">
+                        <label for="search">Search:</label>
+                        <input type="text" id="search" name="query" placeholder="Search for a movie...">
+                        <button type="submit">Search</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
 
-    <h2>Trending Movies</h2>
+    <div class="movie-table">
+        <h2>Trending Movies</h2>
+        <table border="1">
+            <thead> <!-- Correct tag for enclosing header rows -->
+                <tr>
+                    <th>Cover</th>
+                    <th>Title</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody> <!-- Correct tag for the body of the table -->
+                <% movies.forEach(movie => { %>
+                    <tr>
+                        <!-- rowspan="2" will make this cell span two rows -->
+                        <td rowspan="2">
+                            <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" 
+                                alt="<%= movie.title %> Poster" 
+                                style="width: 50px; height: auto;">
+                        </td>
+                        <!-- Movie title in the first row -->
+                        <td class="movie-title"><a href="/movie/<%= movie.id %>"><%= movie.title %></a></td>
+                        <!-- rowspan="2" for rating to span two rows -->
+                        <td rowspan="2"><%= movie.vote_average.toFixed(1) %>/10</td>
+                    </tr>
+                    <tr>
+                        <!-- Only the movie runtime needs to be in the second row under the title, 
+                            thus a single <td> to match the columns -->
+                        <!-- Note: This row is part of the forEach loop, so it repeats correctly -->
+                        <td class="release-date"><%= movie.release_date %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
     <ul>
         <% movies.forEach(movie => { %>
             <li><a href="/movie/<%= movie.id %>"><%= movie.title %></a></li>
@@ -24,6 +69,5 @@
         <input type="text" id="search" name="query" placeholder="Search for a movie...">
         <button type="submit">Search</button>
     </form>
-    
 </body>
 </html>
