@@ -57,17 +57,9 @@
             </tbody>
         </table>
     </div>
-    <ul>
-        <% movies.forEach(movie => { %>
-            <li><a href="/movie/<%= movie.id %>"><%= movie.title %></a></li>
-        <% }); %>
-    </ul>
-
-    <h2>Searchable List of Movies</h2>
-    <form action="/search" method="POST">
-        <label for="search">Search:</label>
-        <input type="text" id="search" name="query" placeholder="Search for a movie...">
-        <button type="submit">Search</button>
-    </form>
+    <footer>
+        <p>This is a movie watchlist organizer. All data is pulled from <a href="https://www.themoviedb.org" target="_blank">themoviedb.org</a>.</p>
+        <p>&copy; <%= new Date().getFullYear() %> Movie Watchlist Organizer. All rights reserved.</p>
+    </footer>
 </body>
 </html>

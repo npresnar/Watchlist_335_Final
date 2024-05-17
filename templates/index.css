@@ -1,6 +1,10 @@
 body {
-    background: #19181a;
     font-family: Arial, sans-serif;
+    min-height: 100vh; /* Ensure the body is at least 100% of the viewport height */
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    background: #19181a;
 }
 
 header {
@@ -10,7 +14,8 @@ header {
 }
 
 .title {
-    color: #E85A4f
+    color: #E85A4f;
+    margin-left: .5rem;
 }
 
 * {
@@ -39,7 +44,7 @@ nav ul form {
     text-align: right;
     margin-right: 20px;
     color: #fff;
-    margin-left: 45rem;
+    margin-left: 58.8rem;
 }
 
 a {
@@ -55,10 +60,12 @@ a:hover {
     padding-left: 2rem;
     display: block;
     background: #EAE7DC;
+    padding-bottom: 3.5rem;
 }
 
 .movie-table tr {
     margin-bottom: .5rem;
+    flex: 1;
 }
 
 .movie-title, .release-date {
@@ -76,4 +83,20 @@ table {
 tr {
     border-bottom: 1px solid #a4a4a4; /* Light gray border under each row */
 }
+
+footer {
+    text-align: center;
+    padding: 1em 0;
+    background-color: #19181a;
+    color: #E85A4f;
+    bottom: 0;
+    width: 100%;
+  }
+  footer a {
+    color: #E85A4f;
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
 

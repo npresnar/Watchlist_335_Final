@@ -4,57 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= movie.title %> - Movie Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        
-        header {
-            background-color: #333;
-            padding: 10px 0;
-        }
-        
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-        
-        nav ul li {
-            display: inline;
-            margin-right: 20px;
-        }
-        
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-        }
-        
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-        }
-        
-        .poster img {
-            max-width: 300px;
-            height: auto;
-        }
-        
-        .details {
-            margin-left: 20px;
-        }        
-    </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <h1 class="title">Movie Watchlist Organizer</h1>
     <header>
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
                 <li><a href="/watchlist">Watchlist</a></li>
+                <li>
+                    <form action="/search" method="POST">
+                        <label for="search">Search:</label>
+                        <input type="text" id="search" name="query" placeholder="Search for a movie...">
+                        <button type="submit">Search</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>
@@ -85,11 +50,14 @@
             <!-- Buttons for watchlist actions -->
             <form action="/addToWatchlist" method="POST">
                 <input type="hidden" name="movieId" value="<%= movie.id %>">
+                <input type="hidden" name="movieTitle" value="<%= movie.title %>">
+                <input type="hidden" name="movieRuntime" value="<%= movie.runtime %>">
+                <input type="hidden" name="posterPath" value="<%= movie.poster_path %>">
                 <button type="submit">Add to Watchlist</button>
             </form>
 
             <form action="/markAsWatched" method="POST">
-                <input type="hidden" name="movieId" value="<%= movie.id %>">
+                <input type="hidden" name="movieId" value="<%= movie.title %>">
                 <button type="submit">Mark as Watched</button>
             </form>
 

@@ -3,19 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
     <title>Watchlist</title>
 </head>
 <body>
-    <h1>Watchlist</h1>
-
-    <% if (movies && movies.length > 0) { %>
-        <ul>
-            <% movies.forEach(movie => { %>
-                <li><%= movie.movieId %></li>
-            <% }); %>
-        </ul>
-    <% } else { %>
-        <p>No movies in watchlist</p>
-    <% } %>
+    <h1 class="title">Movie Watchlist Organizer</h1>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/watchlist">Watchlist</a></li>
+                <li>
+                    <form action="/search" method="POST">
+                        <label for="search">Search:</label>
+                        <input type="text" id="search" name="query" placeholder="Search for a movie...">
+                        <button type="submit">Search</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="movie-table">
+        <h2>Watchlist</h2>
+        <table border="1">
+            <thead> <!-- Correct tag for enclosing header rows -->
+                <tr>
+                    <th>Cover</th>
+                    <th>Title</th>
+                    <th>Runtime</th>
+                </tr>
+            </thead>
+            <tbody> <!-- Correct tag for the body of the table -->
+                <% movies.forEach(movie => { %>
+                    <tr>
+                        <!-- rowspan="2" will make this cell span two rows -->
+                        <td>
+                            <img src="https://image.tmdb.org/t/p/w500<%= movie.posterPath %>" 
+                                alt="<%= movie.title %> Poster" 
+                                style="width: 50px; height: auto;">
+                        </td>
+                        <!-- Movie title in the first row -->
+                        <td class="movie-title"><a href="/movie/<%= movie.movieId %>"><%= movie.movieTitle %></a></td>
+                        <!-- rowspan="2" for rating to span two rows -->
+                        <td><%= formatRuntime(movie.movieRuntime) %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+    <footer>
+        <p>This is a movie watchlist organizer. All data is pulled from <a href="https://www.themoviedb.org" target="_blank">themoviedb.org</a>.</p>
+        <p>&copy; <%= new Date().getFullYear() %> Movie Watchlist Organizer. All rights reserved.</p>
+    </footer>
 </body>
 </html>

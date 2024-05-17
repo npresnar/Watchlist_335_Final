@@ -37,36 +37,6 @@ app.use(express.static(path.join(__dirname, 'templates')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'templates'));
 
-// Routes
-// app.get("/", (req, res) => {
-//   fetch(
-//     "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1",
-//     {
-//       method: "GET",
-//       headers: {
-//         Authorization:
-//           "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
-//         Accept: "application/json",
-//       },
-//     }
-//   )
-// .then(response => {
-//     if (!response.ok) {
-//       throw new Error('Network response was not ok');
-//     }
-//     return response.json();
-//   })
-//   .then(data => {
-//     // Pass the movie data to the index.ejs template
-//     res.render("index", { movies: data.results });
-//   })
-//   .catch(error => {
-//     console.error('There was a problem with your fetch operation:', error);
-//     // In case of error, render the index page with an empty movie list
-//     res.render("index", { movies: [] });
-//   });
-// });
-
 async function fetchWithRetry(url, options = {}, retries = 25, backoff = 300) {
   const fetch = (await import('node-fetch')).default;
 
@@ -180,8 +150,16 @@ app.get('/watchlist', async (req, res) => {
 
       await client.close();
 
+      function formatRuntime(runtime) {
+        const minutes = parseInt(runtime, 10);
+        console.log(minutes)
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h ${mins}m`;
+      }
+
       // Render the EJS template with the list of movies
-      res.render('watchlist', { movies });
+      res.render('watchlist', { movies, formatRuntime });
   } catch (error) {
       console.error('Error fetching movies from watchlist:', error);
       res.status(500).send('Internal Server Error');
@@ -190,6 +168,33 @@ app.get('/watchlist', async (req, res) => {
 
 // POST endpoint for adding a movie to the watchlist
 app.post('/addToWatchlist', async (req, res) => {
+  const { movieId, movieTitle, movieRuntime, posterPath } = req.body;
+  console.log(req.body)
+
+  async function main () {
+    const client = new MongoClient(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverApi: ServerApiVersion.v1,
+    });
+    try {
+      await client.connect();
+      const result = await client
+        .db(databaseAndCollection.db)
+        .collection(databaseAndCollection.collection)
+        .insertOne({ movieId, movieTitle, movieRuntime, posterPath });
+
+      res.redirect('/watchlist');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await client.close();
+    }    
+  }
+  main().catch(console.error);
+});
+
+app.post('/removeFromWatchlist', async (req, res) => {
   const { movieId } = req.body;
   async function main () {
     const client = new MongoClient(uri, {
@@ -202,7 +207,7 @@ app.post('/addToWatchlist', async (req, res) => {
       const result = await client
         .db(databaseAndCollection.db)
         .collection(databaseAndCollection.collection)
-        .insertOne({ movieId: movieId });
+        .deleteOne({ movieId: movieId });
       res.redirect('/watchlist');
     } catch (e) {
       console.error(e);
@@ -211,7 +216,7 @@ app.post('/addToWatchlist', async (req, res) => {
     }    
   }
   main().catch(console.error);
-});
+})
 
 // Start server
 app.listen(PORT, () => {
