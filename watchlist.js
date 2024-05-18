@@ -169,7 +169,6 @@ app.get('/watchlist', async (req, res) => {
 // POST endpoint for adding a movie to the watchlist
 app.post('/addToWatchlist', async (req, res) => {
   const { movieId, movieTitle, movieRuntime, posterPath } = req.body;
-  console.log(req.body)
 
   async function main () {
     const client = new MongoClient(uri, {
