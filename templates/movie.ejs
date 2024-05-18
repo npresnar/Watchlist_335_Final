@@ -4,7 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= movie.title %> - Movie Details</title>
-    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            background: #19181a;
+        }
+        
+        header {
+            background-color: #8E8D8A;
+            padding: .5rem;
+            width: 100rem;
+        }
+        
+        .title {
+            color: #E85A4f;
+            margin-left: .5rem;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+        
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        nav ul form {
+            display: inline;
+            text-align: right;
+            margin-right: 20px;
+            color: #fff;
+            margin-left: 58.8rem;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background: #EAE7DC;
+            color: #333;
+        }
+        
+        .poster img {
+            max-width: 300px;
+            height: auto;
+            margin-right: 20px;
+        }
+        
+        .details {
+            margin-left: 20px;
+        }
+        
+        .details h1 {
+            color: #E85A4f;
+        }
+        
+        .details ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .details ul li {
+            margin-bottom: 10px;
+        }
+        
+        .details button {
+            margin-top: 10px;
+            background-color: #E85A4f;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .details button:hover {
+            background-color: #d9534f;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1em 0;
+            background-color: #19181a;
+            color: #E85A4f;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        footer a {
+            color: #E85A4f;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+    </style>
 </head>
 <body>
     <h1 class="title">Movie Watchlist Organizer</h1>
@@ -26,7 +138,6 @@
     
     <div class="container">
         <div class="poster">
-            <!-- Movie Poster Image -->
             <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" alt="<%= movie.title %> Poster">
         </div>
 
@@ -44,10 +155,8 @@
                 <li><strong>Runtime:</strong> <%= movie.runtime %> minutes</li>
                 <li><strong>Homepage:</strong> <a href="<%= movie.homepage %>" target="_blank"><%= movie.homepage %></a></li>
                 <li><strong>Tagline:</strong> <%= movie.tagline %></li>
-                <!-- Add more details as needed -->
             </ul>
 
-            <!-- Buttons for watchlist actions -->
             <form action="/addToWatchlist" method="POST">
                 <input type="hidden" name="movieId" value="<%= movie.id %>">
                 <input type="hidden" name="movieTitle" value="<%= movie.title %>">
@@ -55,17 +164,16 @@
                 <input type="hidden" name="posterPath" value="<%= movie.poster_path %>">
                 <button type="submit">Add to Watchlist</button>
             </form>
-
-            <form action="/markAsWatched" method="POST">
-                <input type="hidden" name="movieId" value="<%= movie.title %>">
-                <button type="submit">Mark as Watched</button>
-            </form>
-
             <form action="/removeFromWatchlist" method="POST">
                 <input type="hidden" name="movieId" value="<%= movie.id %>">
                 <button type="submit">Remove from Watchlist</button>
             </form>
         </div>
     </div>
+
+    <footer>
+        <p>This is a movie watchlist organizer. All data is pulled from <a href="https://www.themoviedb.org" target="_blank">themoviedb.org</a>.</p>
+        <p>&copy; <%= new Date().getFullYear() %> Movie Watchlist Organizer. All rights reserved.</p>
+    </footer>
 </body>
 </html>

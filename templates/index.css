@@ -47,10 +47,7 @@ nav ul form {
     margin-left: 58.8rem;
 }
 
-a {
-    color: inherit;  /* Inherits the color from the parent element */
-    text-decoration: none;  /* Removes underline */
-}
+
 a:hover {
     color: inherit;  /* Keeps the same color even when hovered */
     text-decoration: none;  /* Ensures no underline appears on hover */
