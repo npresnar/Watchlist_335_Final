@@ -103,32 +103,50 @@ app.get("/movie/:id", async (req, res) => {
 
 
 // POST endpoint for search
+// app.post('/search', async (req, res) => {
+//   try {
+//     // Extract the search query from the request body
+//     const { query } = req.body;
+//     const url = `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`;
+//     const options = {
+//       method: 'GET',
+//       headers: {
+//         Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
+//         Accept: "application/json",
+//       },
+//     };
+
+//     const data = await fetchWithRetry(url, options, 3, 300);
+
+//     res.render('search-results', { movies: data.results });
+//   } catch (error) {
+//     console.error('Error searching for movies:', error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+
 app.post('/search', async (req, res) => {
   try {
-    // Extract the search query from the request body
-    const { query } = req.body;
-    const url = `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`;
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
-        Accept: "application/json",
-      },
-    };
+      // Extract the search query from the request body
+      const { query } = req.body;
 
-    const data = await fetchWithRetry(url, options, 50, 300);
+      // Make a fetch request to the TMDB API
+      const response = await fetch(`https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`, {
+          method: 'GET',
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+            Accept: "application/json",
+          },
+          });
 
-    res.render('search-results', { movies: data.results });
+      const data = await response.json();
+
+      res.render('search-results', { movies: data.results });
   } catch (error) {
-    console.error('Error searching for movies:', error);
-    res.status(500).send('Internal Server Error');
+      console.error('Error searching for movies:', error);
+      res.status(500).send('Internal Server Error');
   }
-});
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
 });
 
 // GET endpoint for displaying all movies in the watchlist
