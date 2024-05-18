@@ -39,7 +39,6 @@ app.set('views', path.join(__dirname, 'templates'));
 
 async function fetchWithRetry(url, options = {}, retries = 25, backoff = 300) {
   const fetch = (await import('node-fetch')).default;
-
   try {
       const response = await fetch(url, options);
       if (!response.ok) {
@@ -68,7 +67,7 @@ app.get("/", (req, res) => {
     }
   };
   
-  fetchWithRetry(url, options, retries=3, backoff=300)
+  fetchWithRetry(url, options, retries=50, backoff=300)
   .then(data => {
     // Pass the movie data to the index.ejs template
     res.render("index", { movies: data.results });
@@ -83,20 +82,18 @@ app.get("/", (req, res) => {
 // Express route to render the movie page
 // Express route to render the movie page
 app.get("/movie/:id", async (req, res) => {
-  try {
-    const movieId = req.params.id;
-    const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=en-US`, {
-      method: "GET",
-      headers: {
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
-        Accept: "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+  const movieId = req.params.id;
+  const url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`;
+  const options = {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
+      Accept: "application/json",
     }
-    const movie = await response.json();
+  };
+
+  try {
+    const movie = await fetchWithRetry(url, options, 50, 300);
     res.render("movie", { movie });
   } catch (error) {
     console.error("Error fetching movie data:", error);
@@ -108,26 +105,30 @@ app.get("/movie/:id", async (req, res) => {
 // POST endpoint for search
 app.post('/search', async (req, res) => {
   try {
-      // Extract the search query from the request body
-      const { query } = req.body;
+    // Extract the search query from the request body
+    const { query } = req.body;
+    const url = `https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
+        Accept: "application/json",
+      },
+    };
 
-      // Make a fetch request to the TMDB API
-      const response = await fetch(`https://api.themoviedb.org/3/search/movie?include_adult=false&language=en-US&page=1&query=${encodeURIComponent(query)}`, {
-          method: 'GET',
-          headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0NDUwZjc2YWM4OTJlMmYxMWJmMThlOTY4N2Q4MTZlNSIsInN1YiI6IjY2MzU2Y2U3NjY1NjVhMDEyODE0YjZjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.oRaqRpBYSpYWZRM-FYFBVkTbsX_eGSsx1Njb2fogCpk",
-            Accept: "application/json",
-          },
-          });
+    const data = await fetchWithRetry(url, options, 50, 300);
 
-      const data = await response.json();
-
-      res.render('search-results', { movies: data.results });
+    res.render('search-results', { movies: data.results });
   } catch (error) {
-      console.error('Error searching for movies:', error);
-      res.status(500).send('Internal Server Error');
+    console.error('Error searching for movies:', error);
+    res.status(500).send('Internal Server Error');
   }
+});
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
 // GET endpoint for displaying all movies in the watchlist
