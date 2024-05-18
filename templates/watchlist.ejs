@@ -26,25 +26,22 @@
     <div class="movie-table">
         <h2>Watchlist</h2>
         <table border="1">
-            <thead> <!-- Correct tag for enclosing header rows -->
+            <thead> 
                 <tr>
                     <th>Cover</th>
                     <th>Title</th>
                     <th>Runtime</th>
                 </tr>
             </thead>
-            <tbody> <!-- Correct tag for the body of the table -->
+            <tbody>
                 <% movies.forEach(movie => { %>
                     <tr>
-                        <!-- rowspan="2" will make this cell span two rows -->
                         <td>
                             <img src="https://image.tmdb.org/t/p/w500<%= movie.posterPath %>" 
                                 alt="<%= movie.title %> Poster" 
                                 style="width: 50px; height: auto;">
                         </td>
-                        <!-- Movie title in the first row -->
                         <td class="movie-title"><a href="/movie/<%= movie.movieId %>"><%= movie.movieTitle %></a></td>
-                        <!-- rowspan="2" for rating to span two rows -->
                         <td><%= formatRuntime(movie.movieRuntime) %></td>
                     </tr>
                 <% }); %>

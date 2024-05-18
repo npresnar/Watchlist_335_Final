@@ -26,31 +26,25 @@
     <div class="movie-table">
         <h1>Search Results</h1>
         <table border="1">
-            <thead> <!-- Correct tag for enclosing header rows -->
+            <thead> 
                 <tr>
                     <th>Cover</th>
                     <th>Title</th>
                     <th>Rating</th>
                 </tr>
             </thead>
-            <tbody> <!-- Correct tag for the body of the table -->
+            <tbody> 
                 <% movies.forEach(movie => { %>
                     <tr>
-                        <!-- rowspan="2" will make this cell span two rows -->
                         <td rowspan="2">
                             <img src="https://image.tmdb.org/t/p/w500<%= movie.poster_path %>" 
                                 alt="<%= movie.title %> Poster" 
                                 style="width: 50px; height: auto;">
                         </td>
-                        <!-- Movie title in the first row -->
                         <td class="movie-title"><a href="/movie/<%= movie.id %>"><%= movie.title %></a></td>
-                        <!-- rowspan="2" for rating to span two rows -->
                         <td rowspan="2"><%= movie.vote_average.toFixed(1) %>/10</td>
                     </tr>
                     <tr>
-                        <!-- Only the movie runtime needs to be in the second row under the title, 
-                            thus a single <td> to match the columns -->
-                        <!-- Note: This row is part of the forEach loop, so it repeats correctly -->
                         <td class="release-date"><%= movie.release_date %></td>
                     </tr>
                 <% }); %>

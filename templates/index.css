@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    min-height: 100vh; /* Ensure the body is at least 100% of the viewport height */
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -19,8 +19,8 @@ header {
 }
 
 * {
-    box-sizing: border-box; /* Ensures padding and borders are included in total width/height */
-    overflow-x: hidden; /* Prevents horizontal scrolling caused by wide elements */
+    box-sizing: border-box; 
+    overflow-x: hidden;
 }
 
 nav ul {
@@ -80,11 +80,11 @@ a:hover {
 }
 
 table {
-    border-collapse: collapse; /* Removes the space between borders */
+    border-collapse: collapse; 
 }
 
 tr {
-    border-bottom: 1px solid #a4a4a4; /* Light gray border under each row */
+    border-bottom: 1px solid #a4a4a4;
 }
 
 footer {
