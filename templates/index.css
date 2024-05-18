@@ -47,10 +47,16 @@ nav ul form {
     margin-left: 58.8rem;
 }
 
+a {
+    color: #bf4941;  
+    text-decoration: none; 
+    font-weight: bold; 
+    transition: color 0.3s ease; 
+}
 
 a:hover {
-    color: inherit;  /* Keeps the same color even when hovered */
-    text-decoration: none;  /* Ensures no underline appears on hover */
+    color: #FF5733;
+    text-decoration: underline; 
 }
 
 .movie-table {
